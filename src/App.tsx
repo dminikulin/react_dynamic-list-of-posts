@@ -90,6 +90,8 @@ export const App = () => {
 
   const addNewComment = (newComment: CommentData) => {
     setNewCommentAdding(true);
+    setError('');
+
     CommentsAPI.addComment(newComment)
       .then(response => {
         setPostComments(prev => [...(prev ?? []), response]);
@@ -99,6 +101,8 @@ export const App = () => {
   };
 
   const deleteComment = (id: number) => {
+    setError('');
+
     CommentsAPI.deleteComment(id)
       .then(() => {
         setPostComments(prev =>
@@ -156,8 +160,7 @@ export const App = () => {
                   <PostsList
                     posts={userPosts}
                     selectedPostId={selectedPost?.id}
-                    onSelect={getPostById}
-                    onCloseDetails={togglePostSelection}
+                    onSelect={togglePostSelection}
                   />
                 )}
               </div>
@@ -183,7 +186,8 @@ export const App = () => {
                   loading={selectedPostLoading}
                   onNewComment={addNewComment}
                   onDeleteComment={deleteComment}
-                  onCommentAdding={newCommentAdding}
+                  commentAdding={newCommentAdding}
+                  onClearError={() => setError('')}
                 />
               </div>
             </div>

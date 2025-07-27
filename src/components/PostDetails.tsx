@@ -4,15 +4,16 @@ import { NewCommentForm } from './NewCommentForm';
 import { Post } from '../types/Post';
 import { Comment, CommentData } from '../types/Comment';
 
-interface DetailProps {
+type DetailProps = {
   post: Post;
   postComments: Comment[] | undefined;
   error: string;
   loading: boolean;
   onNewComment: (newComment: CommentData) => void;
   onDeleteComment: (id: number) => void;
-  onCommentAdding: boolean;
-}
+  commentAdding: boolean;
+  onClearError?: () => void;
+};
 
 export const PostDetails: React.FC<DetailProps> = ({
   post,
@@ -21,7 +22,8 @@ export const PostDetails: React.FC<DetailProps> = ({
   loading,
   onNewComment,
   onDeleteComment,
-  onCommentAdding,
+  commentAdding,
+  onClearError,
 }) => {
   const [formOpened, setFormOpened] = useState<boolean>(false);
 
@@ -43,6 +45,11 @@ export const PostDetails: React.FC<DetailProps> = ({
             <Loader />
           ) : error ? (
             <div className="notification is-danger" data-cy="CommentsError">
+              <button
+                className="delete"
+                onClick={onClearError}
+                aria-label="Close error message"
+              ></button>
               {error}
             </div>
           ) : postComments && postComments.length === 0 ? (
@@ -96,7 +103,7 @@ export const PostDetails: React.FC<DetailProps> = ({
           <NewCommentForm
             postId={post.id}
             onAdd={onNewComment}
-            loading={onCommentAdding}
+            loading={commentAdding}
           />
         )}
       </div>

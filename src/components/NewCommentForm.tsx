@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { CommentData, CommentInput } from '../types/Comment';
+import classNames from 'classnames';
 
-interface FormProps {
+type FormProps = {
   postId: number;
   onAdd: (newComment: CommentData) => void;
   loading: boolean;
-}
+};
 
 export const NewCommentForm: React.FC<FormProps> = ({
   postId,
@@ -52,6 +53,7 @@ export const NewCommentForm: React.FC<FormProps> = ({
     };
 
     onAdd(newComment);
+    setBody('');
   };
 
   return (
@@ -67,7 +69,7 @@ export const NewCommentForm: React.FC<FormProps> = ({
             name="name"
             id="comment-author-name"
             placeholder="Name Surname"
-            className={`input ${error ? 'is-danger' : ''}`}
+            className={classNames(`input`, { 'is-danger': error })}
             onChange={e => setName(e.target.value)}
           />
 
@@ -102,7 +104,7 @@ export const NewCommentForm: React.FC<FormProps> = ({
             name="email"
             id="comment-author-email"
             placeholder="email@test.com"
-            className={`input ${error ? 'is-danger' : ''}`}
+            className={classNames(`input`, { 'is-danger': error })}
             onChange={e => setEmail(e.target.value)}
           />
 
@@ -137,7 +139,7 @@ export const NewCommentForm: React.FC<FormProps> = ({
             id="comment-body"
             name="body"
             placeholder="Type comment here"
-            className={`textarea ${error ? 'is-danger' : ''}`}
+            className={classNames(`textarea`, { 'is-danger': error })}
             onChange={e => setBody(e.target.value)}
           />
         </div>
@@ -153,7 +155,9 @@ export const NewCommentForm: React.FC<FormProps> = ({
         <div className="control">
           <button
             type="submit"
-            className={`button is-link ${loading ? 'is-loading' : ''}`}
+            className={classNames(`button`, `is-link`, {
+              'is-loading': loading,
+            })}
           >
             Add
           </button>

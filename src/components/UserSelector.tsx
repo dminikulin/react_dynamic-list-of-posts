@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { User } from '../types/User';
+import classNames from 'classnames';
 
-interface SelectorProps {
+type SelectorProps = {
   users: User[];
   selectedUser: User | undefined;
   onSelect: (id: number) => void;
-}
+};
 
 export const UserSelector: React.FC<SelectorProps> = ({
   users,
@@ -67,7 +68,9 @@ export const UserSelector: React.FC<SelectorProps> = ({
             <a
               key={user.id}
               href={`#user-${user.id}`}
-              className={`dropdown-item ${selectedUser?.id === user.id ? 'is-active' : ''}`}
+              className={classNames('dropdown-item', {
+                'is-active': selectedUser?.id === user.id,
+              })}
               onClick={e => {
                 e.preventDefault();
                 handleSelect(user.id);
