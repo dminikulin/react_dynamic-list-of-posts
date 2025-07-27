@@ -3,10 +3,17 @@ import { Post } from '../types/Post';
 
 interface Props {
   posts: Post[];
+  selectedPostId?: number;
   onSelect: (id: number) => void;
+  onCloseDetails: (postId: number) => void;
 }
 
-export const PostsList: React.FC<Props> = ({ posts, onSelect }) => (
+export const PostsList: React.FC<Props> = ({
+  posts,
+  selectedPostId,
+  onSelect,
+  onCloseDetails,
+}) => (
   <div data-cy="PostsList">
     <p className="title">Posts:</p>
 
@@ -21,27 +28,35 @@ export const PostsList: React.FC<Props> = ({ posts, onSelect }) => (
       </thead>
 
       <tbody>
-        {posts.map(post => (
-          <tr key={post.id} data-cy="Post">
-            <td data-cy="PostId">{post.id}</td>
+        {posts.map(post => {
+          const isSelected = post.id === selectedPostId;
 
-            <td data-cy="PostTitle">{post.title}</td>
+          return (
+            <tr key={post.id} data-cy="Post">
+              <td data-cy="PostId">{post.id}</td>
 
-            <td className="has-text-right is-vcentered">
-              <button
-                type="button"
-                data-cy="PostButton"
-                className="button is-link is-light"
-                onClick={e => {
-                  e.preventDefault();
-                  onSelect(post.id);
-                }}
-              >
-                Open
-              </button>
-            </td>
-          </tr>
-        ))}
+              <td data-cy="PostTitle">{post.title}</td>
+
+              <td className="has-text-right is-vcentered">
+                <button
+                  type="button"
+                  data-cy="PostButton"
+                  className={`button is-link ${isSelected ? '' : 'is-light'}`}
+                  onClick={e => {
+                    e.preventDefault();
+                    if (isSelected) {
+                      onCloseDetails(post.id);
+                    } else {
+                      onSelect(post.id);
+                    }
+                  }}
+                >
+                  {isSelected ? 'Close' : 'Open'}
+                </button>
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   </div>

@@ -10,16 +10,14 @@ import { PostDetails } from './components/PostDetails';
 import { UserSelector } from './components/UserSelector';
 import { Loader } from './components/Loader';
 import { User } from './types/User';
-import { UsersAPI } from './api/users';
-import { PostsAPI } from './api/posts';
+import { UsersAPI, PostsAPI, CommentsAPI } from './api/client';
 import { Post } from './types/Post';
-import { CommentsAPI } from './api/comments';
 import { Comment, CommentData } from './types/Comment';
 
 export const App = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User>();
-  const [userPosts, setUserPosts] = useState<Post[]>([]);
+  const [userPosts, setUserPosts] = useState<Post[]>();
   const [postsLoading, setPostsLoading] = useState<boolean>(false);
   const [selectedPost, setSelectedPost] = useState<Post>();
   const [selectedPostLoading, setSelectedPostLoading] =
@@ -34,32 +32,39 @@ export const App = () => {
       .catch(() => setError('Failed to fetch users'));
   };
 
-  const getPostsByUserId = (userId: number) => {
+  const getPostsByUserId = (userId: number, userName: string) => {
     setPostsLoading(true);
     PostsAPI.getPostsByUserId(userId)
-      .then(setUserPosts)
-      .catch(() =>
-        setError(`Failed to get posts for user '${selectedUser?.name}'`),
-      )
+      .then(posts => {
+        setUserPosts(posts);
+
+        return posts;
+      })
+      .catch(() => {
+        setError(`Failed to get posts for user '${userName}'`);
+
+        return [];
+      })
       .finally(() => setPostsLoading(false));
   };
 
-  const getSingleUser = (id: number) => {
+  const selectUserAndLoadPosts = (id: number) => {
     const user = users.find(u => u.id === id);
 
-    if (user) {
-      setSelectedUser(user); // immediate update to UI
+    if (!user) {
+      setError(`User not found (ID: ${id})`);
+      setSelectedUser(undefined);
+      setUserPosts(undefined);
+
+      return;
     }
 
-    setUserPosts([]);
+    setSelectedUser(user);
+    setUserPosts(undefined);
     setError('');
-    setPostsLoading(true);
 
-    UsersAPI.getSingleUser(id)
-      .then(setSelectedUser)
-      .then(() => getPostsByUserId(id))
-      .catch(() => setError(`Failed to get the user (ID: ${id})`))
-      .finally(() => setPostsLoading(false));
+    // Load posts for selected user only
+    getPostsByUserId(user.id, user.name);
   };
 
   const getComments = (postId: number) => {
@@ -103,6 +108,16 @@ export const App = () => {
       .catch(() => setError(`Failed to delete comment ${id}`));
   };
 
+  const togglePostSelection = (postId: number) => {
+    if (selectedPost?.id === postId) {
+      setSelectedPost(undefined);
+      setPostComments(undefined);
+      // Reset any other states like error/loading if needed
+    } else {
+      getPostById(postId);
+    }
+  };
+
   useEffect(() => {
     getUsers();
   }, []);
@@ -117,13 +132,13 @@ export const App = () => {
                 <UserSelector
                   users={users}
                   selectedUser={selectedUser}
-                  onSelect={getSingleUser}
+                  onSelect={selectUserAndLoadPosts}
                 />
               </div>
 
               <div className="block" data-cy="MainContent">
-                {postsLoading ? (
-                  <Loader />
+                {!selectedUser ? (
+                  <p data-cy="NoSelectedUser">No user selected</p>
                 ) : error ? (
                   <div
                     className="notification is-danger"
@@ -131,14 +146,19 @@ export const App = () => {
                   >
                     {error}
                   </div>
-                ) : !selectedUser ? (
-                  <p data-cy="NoSelectedUser">No user selected</p>
+                ) : postsLoading || userPosts === undefined ? (
+                  <Loader />
                 ) : userPosts.length === 0 ? (
                   <div className="notification is-warning" data-cy="NoPostsYet">
                     No posts yet
                   </div>
                 ) : (
-                  <PostsList posts={userPosts} onSelect={getPostById} />
+                  <PostsList
+                    posts={userPosts}
+                    selectedPostId={selectedPost?.id}
+                    onSelect={getPostById}
+                    onCloseDetails={togglePostSelection}
+                  />
                 )}
               </div>
             </div>
