@@ -3,8 +3,10 @@ import { Loader } from './Loader';
 import { NewCommentForm } from './NewCommentForm';
 import { Post } from '../types/Post';
 import { Comment, CommentData } from '../types/Comment';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import PropTypes from 'prop-types';
 
-type DetailProps = {
+interface DetailProps {
   post: Post;
   postComments: Comment[] | undefined;
   error: string;
@@ -13,7 +15,7 @@ type DetailProps = {
   onDeleteComment: (id: number) => void;
   commentAdding: boolean;
   onClearError?: () => void;
-};
+}
 
 export const PostDetails: React.FC<DetailProps> = ({
   post,
@@ -109,4 +111,28 @@ export const PostDetails: React.FC<DetailProps> = ({
       </div>
     </div>
   );
+};
+
+PostDetails.propTypes = {
+  post: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    userId: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    body: PropTypes.string.isRequired,
+  }).isRequired,
+  postComments: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      postId: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+      email: PropTypes.string.isRequired,
+      body: PropTypes.string.isRequired,
+    }).isRequired,
+  ),
+  error: PropTypes.string.isRequired,
+  loading: PropTypes.bool.isRequired,
+  onNewComment: PropTypes.func.isRequired,
+  onDeleteComment: PropTypes.func.isRequired,
+  commentAdding: PropTypes.bool.isRequired,
+  onClearError: PropTypes.func,
 };

@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { CommentData, CommentInput } from '../types/Comment';
 import classNames from 'classnames';
 
-type FormProps = {
+interface FormProps {
   postId: number;
   onAdd: (newComment: CommentData) => void;
   loading: boolean;
-};
+}
 
 export const NewCommentForm: React.FC<FormProps> = ({
   postId,
@@ -22,6 +22,29 @@ export const NewCommentForm: React.FC<FormProps> = ({
     setName('');
     setEmail('');
     setBody('');
+  };
+
+  const clearError = () => setError('');
+
+  const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+    if (error) {
+      clearError();
+    }
+  };
+
+  const onEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    if (error) {
+      clearError();
+    }
+  };
+
+  const onBodyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setBody(e.target.value);
+    if (error) {
+      clearError();
+    }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -53,7 +76,8 @@ export const NewCommentForm: React.FC<FormProps> = ({
     };
 
     onAdd(newComment);
-    setBody('');
+    clearFields();
+    clearError();
   };
 
   return (
@@ -70,7 +94,7 @@ export const NewCommentForm: React.FC<FormProps> = ({
             id="comment-author-name"
             placeholder="Name Surname"
             className={classNames(`input`, { 'is-danger': error })}
-            onChange={e => setName(e.target.value)}
+            onChange={onNameChange}
           />
 
           <span className="icon is-small is-left">
@@ -105,7 +129,7 @@ export const NewCommentForm: React.FC<FormProps> = ({
             id="comment-author-email"
             placeholder="email@test.com"
             className={classNames(`input`, { 'is-danger': error })}
-            onChange={e => setEmail(e.target.value)}
+            onChange={onEmailChange}
           />
 
           <span className="icon is-small is-left">
@@ -140,7 +164,7 @@ export const NewCommentForm: React.FC<FormProps> = ({
             name="body"
             placeholder="Type comment here"
             className={classNames(`textarea`, { 'is-danger': error })}
-            onChange={e => setBody(e.target.value)}
+            onChange={onBodyChange}
           />
         </div>
 

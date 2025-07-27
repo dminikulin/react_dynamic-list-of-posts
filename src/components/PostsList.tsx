@@ -1,12 +1,14 @@
 import React, { useCallback } from 'react';
 import { Post } from '../types/Post';
 import classNames from 'classnames';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import PropTypes from 'prop-types';
 
-type ListProps = {
+interface ListProps {
   posts: Post[];
   selectedPostId?: number;
   onSelect: (id: number) => void;
-};
+}
 
 export const PostsList: React.FC<ListProps> = ({
   posts,
@@ -66,4 +68,17 @@ export const PostsList: React.FC<ListProps> = ({
       </table>
     </div>
   );
+};
+
+PostsList.propTypes = {
+  posts: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      userId: PropTypes.number.isRequired,
+      title: PropTypes.string.isRequired,
+      body: PropTypes.string.isRequired,
+    }).isRequired,
+  ).isRequired,
+  selectedPostId: PropTypes.number,
+  onSelect: PropTypes.func.isRequired,
 };
